@@ -13,12 +13,10 @@ app.get('/api/stock', async (req, res) => {
     const { name } = req.query;
     if (!name) return res.status(400).json({ error: 'Ticker required' });
 
-    // FIX: Aggressive Regex Cleaning
-    // Removes .NS, .BO, .ns, .bo and extra spaces
+    // Clean ticker
     const cleanTicker = name.replace(/\.NS/gi, '').replace(/\.BO/gi, '').trim().toUpperCase();
 
     try {
-        // Correct API Endpoint
         const url = `https://stock.indianapi.in/stock?name=${encodeURIComponent(cleanTicker)}`;
         console.log(`Fetching: ${url}`);
         
@@ -28,31 +26,39 @@ app.get('/api/stock', async (req, res) => {
 
         const data = response.data;
 
-        // Extract Price (Handle Object or Number)
-        let price = 0;
+        // --- FIX: CAPTURE BOTH PRICES ---
+        // Instead of flattening to one number, we send what the API gives us.
+        // If it's { NSE: 100, BSE: 101 }, we send that.
+        let pricePayload = 0;
+        let exchangeLabel = "NSE";
+
         if (data.currentPrice) {
+            pricePayload = data.currentPrice; // Can be object or number
             if (typeof data.currentPrice === 'object') {
-                // Prefer NSE, fallback to BSE
-                price = data.currentPrice.NSE || data.currentPrice.BSE || 0;
-            } else {
-                price = data.currentPrice;
+                exchangeLabel = "NSE/BSE";
             }
         } else {
-            // Fallbacks
-            price = data.price || data.lastPrice || data.ltp || data.close || 0;
+            // Fallbacks for other data shapes
+            pricePayload = data.price || data.lastPrice || data.ltp || data.close || 0;
         }
 
         res.json({
-            symbol: cleanTicker, // Force clean symbol
+            symbol: cleanTicker,
             companyName: data.companyName || cleanTicker,
-            price: parseFloat(price) || 0,
+            
+            // This will now contain { NSE: ..., BSE: ... } if available
+            price: pricePayload, 
+            
             currency: "INR",
             change: data.change || 0,
             percentChange: data.pChange || data.percentChange || 0,
             marketCap: data.marketCap || "N/A",
             peRatio: data.peRatio || "N/A",
-            exchange: "NSE",
-            debug_raw: data // Keep for debugging if needed
+            
+            // Dynamic Label
+            exchange: exchangeLabel,
+            
+            debug_raw: data 
         });
 
     } catch (error) {
