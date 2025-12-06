@@ -6,108 +6,70 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- CORS CONFIGURATION ---
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// --- 1. STOCK API (IndianAPI.in) ---
+// --- STOCK API (Debug Mode) ---
 app.get('/api/stock', async (req, res) => {
     const { name } = req.query;
-    if (!name) return res.status(400).json({ error: 'Stock ticker required' });
+    if (!name) return res.status(400).json({ error: 'Ticker required' });
 
-    // Clean ticker: IndianAPI usually expects "TATASTEEL" not "TATASTEEL.NS"
-    // We strip common suffixes to be safe
-    const cleanTicker = name.replace('.NS', '').replace('.BO', '').trim();
+    // Clean ticker (e.g. "Tata Steel" -> "TATASTEEL")
+    const cleanTicker = name.replace('.NS', '').replace('.BO', '').trim().toUpperCase();
 
     try {
-        // IndianAPI Endpoint Structure
-        const url = `https://stock.indianapi.in/stock?name=${encodeURIComponent("query")}`;
+        const url = `https://stock.indianapi.in/stock?name=${encodeURIComponent(cleanTicker)}`;
+        console.log(`Fetching: ${url}`);
         
         const response = await axios.get(url, {
-            headers: {
-                'X-Api-Key': process.env.STOCK_API_KEY // Ensure this Env Var is set
-            }
+            headers: { 'x-api-key': process.env.INDIAN_API_KEY }
         });
 
         const data = response.data;
-        
-        // Normalize Data for Frontend
-        // Assuming IndianAPI returns { currentPrice: 150, ... }
+
+        // AGGRESSIVE PRICE FINDER
+        let price = 0;
+        // Check every possible field IndianAPI might use
+        if (data.currentPrice) {
+            // Sometimes it's an object { NSE: 100, BSE: 100 }
+            if (typeof data.currentPrice === 'object') price = data.currentPrice.NSE || data.currentPrice.BSE;
+            else price = data.currentPrice;
+        } 
+        else if (data.lastPrice) price = data.lastPrice;
+        else if (data.price) price = data.price;
+        else if (data.ltp) price = data.ltp;
+        else if (data.close) price = data.close;
+
+        // Force to number
+        price = parseFloat(price) || 0;
+
         res.json({
             symbol: cleanTicker,
             companyName: data.companyName || cleanTicker,
-            price: data.currentPrice,
+            price: price, // This should now be a number
             currency: "INR",
             change: data.change || 0,
-            percentChange: data.percentChange || 0,
+            percentChange: data.pChange || data.percentChange || 0,
             marketCap: data.marketCap || "N/A",
             peRatio: data.peRatio || "N/A",
-            exchange: "NSE"
+            exchange: "NSE",
+            // DEBUG FIELD: Allows us to see what IndianAPI actually sent
+            debug_response: data 
         });
 
     } catch (error) {
-        console.error("Stock API Error:", error.message);
-        res.status(500).json({ error: 'Failed to fetch stock data', details: error.message });
+        console.error("Stock Error:", error.message);
+        res.status(500).json({ 
+            error: 'Failed to fetch stock', 
+            details: error.response?.data || error.message 
+        });
     }
 });
 
-// --- 2. NEWS API (NewsAPI.org) ---
-app.get('/api/news', async (req, res) => {
-    const { query } = req.query;
-    const searchTerm = query || 'India Startup Funding';
-    
-    try {
-        const url = `https://newsapi.org/v2/everything`;
-        const response = await axios.get(url, {
-            params: {
-                q: searchTerm,
-                sortBy: 'publishedAt',
-                language: 'en',
-                apiKey: process.env.NEWS_API_KEY // Ensure this Env Var is set
-            }
-        });
+// ... (Keep your News and Gold routes here) ...
 
-        res.json(response.data);
-
-    } catch (error) {
-        console.error("News API Error:", error.message);
-        res.status(500).json({ error: 'Failed to fetch news', details: error.message });
-    }
-});
-
-// --- 3. GOLD API (GoldAPI.io) ---
-app.get('/api/gold', async (req, res) => {
-    try {
-        const url = `https://www.goldapi.io/api/XAU/INR`;
-        
-        const response = await axios.get(url, {
-            headers: {
-                'x-access-token': process.env.GOLD_API_KEY, // Ensure this Env Var is set
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // GoldAPI returns price per Ounce. Convert to Grams (1 Ounce = 31.1035 Grams)
-        const pricePerOunce = response.data.price;
-        const pricePerGram = (pricePerOunce / 31.1035).toFixed(2);
-
-        res.json({
-            symbol: 'Gold (24K)',
-            price: pricePerGram,
-            currency: 'INR',
-            raw_response: response.data
-        });
-
-    } catch (error) {
-        console.error("Gold API Error:", error.message);
-        res.status(500).json({ error: 'Gold fetch failed', details: error.message });
-    }
-});
-
-// Health Check
-app.get('/', (req, res) => res.send('Auspex Finance Engine: Active'));
-
+app.get('/', (req, res) => res.send('Finance Engine Active'));
 module.exports = app;
