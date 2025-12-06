@@ -24,7 +24,7 @@ app.get('/api/stock', async (req, res) => {
 
     try {
         // IndianAPI Endpoint Structure
-        const url = `https://stock.indianapi.in/stock?name=${cleanTicker}`;
+        const url = `https://stock.indianapi.in/stock?name=${query}`;
         
         const response = await axios.get(url, {
             headers: {
