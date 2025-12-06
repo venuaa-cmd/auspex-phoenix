@@ -55,7 +55,7 @@ app.get('/api/stock', async (req, res) => {
             percentChange: data.pChange || data.percentChange || 0,
             marketCap: data.marketCap || "N/A",
             peRatio: data.peRatio || "N/A",
-            exchange: "NSE",
+            exchange: "NSE" || "BSE",
             // DEBUG FIELD: Allows us to see what IndianAPI actually sent
             debug_response: data 
         });
