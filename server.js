@@ -39,7 +39,7 @@ app.get('/api/stock', async (req, res) => {
         res.json({
             symbol: cleanTicker,
             companyName: data.companyName || cleanTicker,
-            price: data.currentPrice || data.price,
+            price: data.currentPrice,
             currency: "INR",
             change: data.change || 0,
             percentChange: data.percentChange || 0,
