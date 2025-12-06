@@ -28,7 +28,7 @@ app.get('/api/stock', async (req, res) => {
         
         const response = await axios.get(url, {
             headers: {
-                'X-Api-Key': process.env.INDIAN_API_KEY // Ensure this Env Var is set
+                'X-Api-Key': process.env.STOCK_API_KEY // Ensure this Env Var is set
             }
         });
 
