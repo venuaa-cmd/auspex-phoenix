@@ -25,7 +25,7 @@ app.get('/api/stock', async (req, res) => {
         console.log(`Fetching: ${url}`);
         
         const response = await axios.get(url, {
-            headers: { 'x-api-key': process.env.INDIAN_API_KEY }
+            headers: { 'x-api-key': process.env.STOCK_API_KEY }
         });
 
         const data = response.data;
