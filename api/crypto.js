@@ -2,6 +2,11 @@
 export default async function handler(req, res) {
   const { id } = req.query; // Expects ticker like 'btc'
   
+  // 1. GUARD CLAUSE: Prevent crash if no ID is provided (Fixes 500 Error)
+  if (!id) {
+    return res.status(400).json({ error: "Missing 'id' query parameter. Usage: /api/crypto?id=btc" });
+  }
+
   // CoinGecko requires IDs (bitcoin) not Tickers (BTC)
   const tickerMap = {
     'btc': 'bitcoin',
@@ -19,7 +24,7 @@ export default async function handler(req, res) {
     const data = await response.json();
     
     if (!data[geckoId]) {
-        return res.status(404).json({ error: "Asset not found" });
+        return res.status(404).json({ error: `Asset '${geckoId}' not found on CoinGecko.` });
     }
 
     res.status(200).json({
@@ -28,6 +33,6 @@ export default async function handler(req, res) {
       raw: data
     });
   } catch (error) {
-    res.status(500).json({ error: "Oracle Link Failure" });
+    res.status(500).json({ error: "Oracle Link Failure", details: error.message });
   }
 }
