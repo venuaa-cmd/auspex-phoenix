@@ -1,0 +1,321 @@
+﻿/* 1. IMPORT FONTS */
+/* Manrope (Body) & Space Grotesk (Headers) */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 2. GLOBAL TYPOGRAPHY OVERRIDES */
+@layer base {
+  /* Apply Space Grotesk to ALL Headings automatically */
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.03em; /* Tighter tracking looks more expensive */
+  }
+
+  /* Keep Manrope for Body text */
+  body, p, input, select, textarea, button, .font-manrope {
+    font-family: 'Manrope', sans-serif;
+  }
+}
+
+/* 3. SCROLLBAR POLISH (Professional) */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* --- EXISTING VARIABLES & STYLES --- */
+:root { 
+    --brand-color: #18B8B9; 
+    --brand-glow: rgba(24, 184, 185, 0.5); 
+    --brand-dark: #020617; 
+    --glass-bg: rgba(15, 23, 42, 0.7); 
+    color-scheme: dark;
+}
+
+body {
+    background-color: var(--brand-dark);
+    color: white;
+    /* font-family set in @layer base above */
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* --- GLOBAL SCROLLBAR OVERRIDE (Legacy Fallback) --- */
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+*::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1); 
+}
+*::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-color);
+    box-shadow: 0 0 10px var(--brand-glow);
+}
+
+/* --- 3D FLIP CARD UTILITIES --- */
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+
+.backface-hidden {
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+}
+
+/* --- 3D FLIP ENGINE --- */
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+/* Trigger the flip on hover */
+.group:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Common styles for both faces */
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+    border-radius: 0.75rem; 
+    top: 0;
+    left: 0;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front {
+    z-index: 2;
+}
+
+/* --- THESIS CARD OVERRIDES --- */
+.thesis-card-dark {
+    background-color: #020617 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thesis-card-dark:hover {
+    background-color: #0f172a !important;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.thesis-card-active {
+    background-color: rgba(24, 184, 185, 0.1) !important;
+    border: 1px solid var(--brand-color) !important;
+    box-shadow: 0 0 15px var(--brand-glow);
+}
+/* 2. Specific Targeting for Select Menus */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    appearance: none;
+}
+
+/* 3. The Actual Dropdown List (The "White Box" Fix) */
+select option {
+    background-color: #0f172a !important; /* Your Card Background Color */
+    color: white !important;
+    padding: 10px;
+}
+
+/* 4. Fix Auto-Fill turning inputs white/yellow */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px #020617 inset !important; /* Match Body BG */
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* AI Report Refinement */
+.ai-report-container {
+    font-family: 'Manrope', sans-serif;
+    line-height: 1.2;
+    color: #cbd5e1;
+    font-size:0.9rem;
+}
+
+/* Fix: Prevent headers from breaking list lines */
+.ai-report-container h2 {
+    display: block;
+    font-size: 1.1rem;
+    color: #ffffff;
+    font-weight: 800;
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Fix: List Bullet alignment */
+.ai-report-container ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1rem 0;
+}
+
+.ai-report-container li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    display: block; /* Ensures the bullet and content stay together */
+}
+
+.ai-report-container li::before {
+    content: "•";
+    color: #a855f7; /* Purple bullet */
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* Fix: High-Contrast Bolding */
+.ai-report-container b, 
+.ai-report-container strong {
+    color: #facc15; /* Yellow-400 for maximum readability in dark mode */
+    font-weight: 600;
+}
+/* Gold & Crypto AI Report Overhaul */
+.ai-report-container {
+    font-family: 'Manrope', sans-serif;
+    line-height: 1.8;
+    color: #cbd5e1; /* slate-300 */
+    font-weight: 400 !important; /* Force remove global bold */
+}
+
+/* 1. Fix Headers - Smaller and Brighter */
+.ai-report-container h1, 
+.ai-report-container h2 {
+    font-size: 1.1rem !important; /* Reduced from massive size */
+    color: #facc15 !important; /* Yellow-400 for high visibility */
+    font-weight: 800;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* 2. Fix the "White Table" Readability */
+.ai-report-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: rgba(15, 23, 42, 0.8); /* Deep slate background */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ai-report-container th {
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8; /* slate-400 */
+    font-size: 10px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 12px;
+}
+
+.ai-report-container td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #ffffff; /* Pure white text on dark background */
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 3. Paragraph Spacing (Alternative to <br/>) */
+.ai-report-container p,
+.ai-report-container div {
+    margin-bottom: 1.5rem; /* Enforces gap between thoughts */
+    display: block;
+}
+
+/* 4. Selective Bolding */
+.ai-report-container b, 
+.ai-report-container strong {
+    color: #ffffff;
+    font-weight: 700;
+}
