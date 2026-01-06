@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
-import { calculateSalaryStructure } from './payrollEngine';
+import { calculateSalaryStructure } from './PayrollEngine';
 
 const EmployeeForm = ({ isOpen, onClose, onAdd, initialData = null, mode = 'MODAL' }) => {
     if (mode === 'MODAL' && !isOpen) return null;
