@@ -1,12 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import axios from 'axios';
+import 'dotenv/config';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Enable CORS for global access as per your origin: '*' rule
 app.use(cors({ origin: '*' }));
+app.use(express.json());
 
 // --- STOCK API ---
 app.get('/api/stock', async (req, res) => {
@@ -26,38 +28,29 @@ app.get('/api/stock', async (req, res) => {
 
         const data = response.data;
 
-        // --- FIX: CAPTURE BOTH PRICES ---
-        // Instead of flattening to one number, we send what the API gives us.
-        // If it's { NSE: 100, BSE: 101 }, we send that.
+        // --- CAPTURE BOTH PRICES ---
         let pricePayload = 0;
         let exchangeLabel = "NSE";
 
         if (data.currentPrice) {
-            pricePayload = data.currentPrice; // Can be object or number
+            pricePayload = data.currentPrice; 
             if (typeof data.currentPrice === 'object') {
                 exchangeLabel = "NSE/BSE";
             }
         } else {
-            // Fallbacks for other data shapes
             pricePayload = data.price || data.lastPrice || data.ltp || data.close || 0;
         }
 
         res.json({
             symbol: cleanTicker,
             companyName: data.companyName || cleanTicker,
-            
-            // This will now contain { NSE: ..., BSE: ... } if available
             price: pricePayload, 
-            
             currency: "INR",
             change: data.change || 0,
             percentChange: data.pChange || data.percentChange || 0,
             marketCap: data.marketCap || "N/A",
             peRatio: data.peRatio || "N/A",
-            
-            // Dynamic Label
             exchange: exchangeLabel,
-            
             debug_raw: data 
         });
 
@@ -104,5 +97,12 @@ app.get('/api/gold', async (req, res) => {
     }
 });
 
+// Root Route
 app.get('/', (req, res) => res.send('Finance Engine Active'));
-module.exports = app;
+
+/**
+ * CRITICAL FOR VERCEL: 
+ * We export the app as default instead of using module.exports.
+ * Vercel will wrap this in a serverless function automatically.
+ */
+export default app;
