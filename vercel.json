@@ -1,23 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
-    },
-    {
-      "src": "api/news.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
   "rewrites": [
-    { "source": "/api/news", "destination": "/api/news.js" },
-    { "source": "/api/(.*)", "destination": "/server.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
